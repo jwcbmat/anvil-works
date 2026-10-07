@@ -1,0 +1,34 @@
+services:
+  mysql:
+    image: mysql:9.7.2
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping -h 127.0.0.1 -uroot -p$MYSQL_ROOT_PASSWORD --silent
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
+  node-red:
+    image: nodered/node-red
+    ports:
+      - "1880:1880"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - node_red_data:/data
+
+volumes:
+  mysql_data:
+  node_red_data:
