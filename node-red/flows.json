@@ -71,6 +71,38 @@
         "h": 422
     },
     {
+        "id": "6b21666697b052ae",
+        "type": "group",
+        "z": "f6f2187d.f17ca8",
+        "name": "cadastro de fornalhas",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "a1f0c0de00000100",
+            "a1f0c0de00000101",
+            "a1f0c0de00000102",
+            "a1f0c0de00000103",
+            "a1f0c0de00000104",
+            "a1f0c0de00000105",
+            "a1f0c0de00000106",
+            "a1f0c0de00000107",
+            "a1f0c0de0000010a",
+            "a1f0c0de0000010b",
+            "a1f0c0de0000010c",
+            "a1f0c0de0000010d",
+            "a1f0c0de00000108",
+            "a1f0c0de00000109",
+            "a1f0c0de0000010e",
+            "a1f0c0de0000010f",
+            "a1f0c0de00000110"
+        ],
+        "x": 554,
+        "y": 1059,
+        "w": 1452,
+        "h": 349.5
+    },
+    {
         "id": "14b086ef05091e85",
         "type": "MySQLdatabase",
         "name": "mySQL",
@@ -229,6 +261,57 @@
             "node-red-contrib-s7": "3.1.3",
             "@flowfuse/node-red-dashboard": "1.33.0"
         }
+    },
+    {
+        "id": "a1f0c0de00000002",
+        "type": "ui-page",
+        "name": "Fornalhas",
+        "ui": "455a505c45f23cbb",
+        "path": "/fornalhas",
+        "icon": "fire",
+        "layout": "grid",
+        "theme": "64e134bdda616c60",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 2,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "a1f0c0de00000003",
+        "type": "ui-group",
+        "name": "Cadastro de fornalhas",
+        "page": "a1f0c0de00000002",
+        "width": 6,
+        "height": 1,
+        "order": 1,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default",
+        "tab": ""
     },
     {
         "id": "dc95cf4d5062d03f",
@@ -543,7 +626,7 @@
         "z": "f6f2187d.f17ca8",
         "g": "32370653479a2ebf",
         "mydb": "14b086ef05091e85",
-        "name": "Count by furnace",
+        "name": "count by furnace",
         "x": 830,
         "y": 800,
         "wires": [
@@ -651,8 +734,8 @@
         "z": "f6f2187d.f17ca8",
         "g": "32370653479a2ebf",
         "mydb": "14b086ef05091e85",
-        "name": "Last 20 hardness",
-        "x": 810,
+        "name": "last 20 hardness",
+        "x": 800,
         "y": 960,
         "wires": [
             [
@@ -722,5 +805,468 @@
         "wires": [
             []
         ]
+    },
+    {
+        "id": "a1f0c0de00000100",
+        "type": "inject",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "name": "load on start",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "1",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 670,
+        "y": 1100,
+        "wires": [
+            [
+                "a1f0c0de00000101"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de00000101",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "name": "list furnaces",
+        "func": "msg.topic = 'SELECT id, name, plc_identifier FROM furnaces ORDER BY plc_identifier';\nmsg.payload = [];\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 1100,
+        "wires": [
+            [
+                "a1f0c0de00000102"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de00000102",
+        "type": "mysql",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "mydb": "14b086ef05091e85",
+        "name": "select furnaces",
+        "x": 1070,
+        "y": 1100,
+        "wires": [
+            [
+                "a1f0c0de00000103"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de00000103",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "name": "to table rows",
+        "func": "msg.payload = (msg.payload || []).map(r => ({\n    ID: r.id,\n    Nome: r.name,\n    CLP: r.plc_identifier\n}));\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1270,
+        "y": 1100,
+        "wires": [
+            [
+                "a1f0c0de00000104"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de00000104",
+        "type": "ui-table",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "group": "a1f0c0de00000003",
+        "name": "furnace table",
+        "label": "Fornalhas cadastradas",
+        "order": 1,
+        "width": 6,
+        "height": 0,
+        "maxrows": 0,
+        "passthru": false,
+        "autocols": true,
+        "showSearch": false,
+        "deselect": false,
+        "selectionType": "click",
+        "columns": [],
+        "mobileBreakpoint": "sm",
+        "mobileBreakpointType": "defaults",
+        "action": "replace",
+        "className": "",
+        "x": 1470,
+        "y": 1100,
+        "wires": [
+            [
+                "a1f0c0de00000105"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de00000105",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "name": "select furnace",
+        "func": "const row = msg.payload;\nif (!row || row.ID === undefined) {\n    return null;\n}\n\nflow.set('furnaceId', row.ID);\n\nreturn [\n    { payload: { name: row.Nome, plc_identifier: String(row.CLP) } },\n    { payload: 'Editando: ' + row.Nome + ' (CLP ' + row.CLP + ')' }\n];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 1200,
+        "wires": [
+            [
+                "a1f0c0de00000106"
+            ],
+            [
+                "a1f0c0de00000110"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de00000106",
+        "type": "ui-form",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "name": "furnace form",
+        "group": "a1f0c0de00000003",
+        "label": "Fornalha",
+        "order": 2,
+        "width": 6,
+        "height": 0,
+        "options": [
+            {
+                "label": "Nome da fornalha",
+                "key": "name",
+                "type": "text",
+                "required": true,
+                "rows": null
+            },
+            {
+                "label": "Identificador no CLP",
+                "key": "plc_identifier",
+                "type": "dropdown",
+                "required": true,
+                "rows": null
+            }
+        ],
+        "formValue": {
+            "name": "",
+            "plc_identifier": ""
+        },
+        "payload": "",
+        "submit": "Salvar",
+        "cancel": "",
+        "resetOnSubmit": true,
+        "topic": "topic",
+        "topicType": "msg",
+        "splitLayout": "",
+        "className": "",
+        "passthru": false,
+        "dropdownOptions": [
+            {
+                "dropdown": "plc_identifier",
+                "value": "1",
+                "label": "1"
+            },
+            {
+                "dropdown": "plc_identifier",
+                "value": "2",
+                "label": "2"
+            },
+            {
+                "dropdown": "plc_identifier",
+                "value": "3",
+                "label": "3"
+            }
+        ],
+        "x": 1090,
+        "y": 1200,
+        "wires": [
+            [
+                "a1f0c0de00000107"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de00000107",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "name": "save furnace",
+        "func": "const name = String(msg.payload.name || '').trim();\nconst plcId = Number(msg.payload.plc_identifier);\n\nif (!name) {\n    return [null, { payload: 'Informe o nome da fornalha.' }];\n}\nif (![1, 2, 3].includes(plcId)) {\n    return [null, { payload: 'Selecione o identificador do CLP (1 a 3).' }];\n}\n\nconst id = flow.get('furnaceId');\nflow.set('furnaceId', null);\n\nif (id) {\n    return [{\n        topic: 'UPDATE furnaces SET name = ?, plc_identifier = ?, updated_at = CURRENT_TIMESTAMP(3) WHERE id = ?',\n        payload: [name, plcId, id],\n        statusText: 'Fornalha atualizada.'\n    }, null];\n}\n\nreturn [{\n    topic: 'INSERT INTO furnaces (name, plc_identifier) VALUES (?, ?)',\n    payload: [name, plcId],\n    statusText: 'Fornalha cadastrada.'\n}, null];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1290,
+        "y": 1200,
+        "wires": [
+            [
+                "a1f0c0de00000108"
+            ],
+            [
+                "a1f0c0de00000110"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de0000010a",
+        "type": "ui-button",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "group": "a1f0c0de00000003",
+        "name": "new button",
+        "label": "Nova fornalha",
+        "order": 3,
+        "width": 3,
+        "height": 1,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 670,
+        "y": 1300,
+        "wires": [
+            [
+                "a1f0c0de0000010b"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de0000010b",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "name": "clear selection",
+        "func": "flow.set('furnaceId', null);\n\nreturn [\n    { payload: { name: '', plc_identifier: '' } },\n    { payload: 'Nova fornalha.' }\n];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 1300,
+        "wires": [
+            [
+                "a1f0c0de00000106"
+            ],
+            [
+                "a1f0c0de00000110"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de0000010c",
+        "type": "ui-button",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "group": "a1f0c0de00000003",
+        "name": "delete button",
+        "label": "Excluir selecionada",
+        "order": 4,
+        "width": 3,
+        "height": 1,
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 670,
+        "y": 1360,
+        "wires": [
+            [
+                "a1f0c0de0000010d"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de0000010d",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "name": "delete furnace",
+        "func": "const id = flow.get('furnaceId');\nif (!id) {\n    return [null, null, { payload: 'Selecione uma fornalha na tabela.' }];\n}\n\nflow.set('furnaceId', null);\n\nreturn [\n    { topic: 'DELETE FROM furnaces WHERE id = ?', payload: [id], statusText: 'Fornalha excluída.' },\n    { payload: { name: '', plc_identifier: '' } },\n    null\n];",
+        "outputs": 3,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 1360,
+        "wires": [
+            [
+                "a1f0c0de00000108"
+            ],
+            [
+                "a1f0c0de00000106"
+            ],
+            [
+                "a1f0c0de00000110"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de00000108",
+        "type": "mysql",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "mydb": "14b086ef05091e85",
+        "name": "write furnace",
+        "x": 1510,
+        "y": 1260,
+        "wires": [
+            [
+                "a1f0c0de00000109"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de00000109",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "name": "after write",
+        "func": "return [\n    { payload: msg.statusText || 'OK' },\n    { payload: 'refresh' }\n];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1710,
+        "y": 1260,
+        "wires": [
+            [
+                "a1f0c0de00000110"
+            ],
+            [
+                "a1f0c0de00000101"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de0000010e",
+        "type": "catch",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "name": "write error",
+        "scope": [
+            "a1f0c0de00000108"
+        ],
+        "uncaught": false,
+        "x": 1510,
+        "y": 1340,
+        "wires": [
+            [
+                "a1f0c0de0000010f"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de0000010f",
+        "type": "function",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "name": "error message",
+        "func": "const detail = String((msg.error && msg.error.message) || '');\nconst text = /ER_DUP_ENTRY|Duplicate entry/.test(detail)\n    ? 'Já existe uma fornalha com esse identificador do CLP.'\n    : 'Erro no banco: ' + (detail || 'desconhecido');\nreturn [\n    { payload: text },\n    { payload: 'refresh' }\n];",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1710,
+        "y": 1340,
+        "wires": [
+            [
+                "a1f0c0de00000110"
+            ],
+            [
+                "a1f0c0de00000101"
+            ]
+        ]
+    },
+    {
+        "id": "a1f0c0de00000110",
+        "type": "ui-text",
+        "z": "f6f2187d.f17ca8",
+        "g": "6b21666697b052ae",
+        "group": "a1f0c0de00000003",
+        "order": 5,
+        "width": 6,
+        "height": 1,
+        "name": "status",
+        "label": "Status",
+        "format": "{{msg.payload}}",
+        "layout": "row-left",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#717171",
+        "wrapText": true,
+        "className": "",
+        "value": "payload",
+        "valueType": "msg",
+        "x": 1930,
+        "y": 1300,
+        "wires": []
     }
 ]
