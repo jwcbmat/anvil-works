@@ -35,6 +35,7 @@ flowchart LR
 | Real-time hardness | Dashboard gauge |
 | Anvils per furnace | Dashboard bar chart |
 | Hardness of the last 20 anvils | Dashboard line chart |
+| Furnace registry (list, create, edit, delete) | Dashboard page *Fornalhas*, `furnaces` table |
 
 ## Getting started
 
@@ -49,6 +50,7 @@ docker compose up -d --build
 |---|---|
 | Node-RED editor | http://localhost:1880 |
 | Dashboard | http://localhost:1880/dashboard |
+| Furnace registry | http://localhost:1880/dashboard/fornalhas |
 
 MySQL applies the migrations in `db/migrations` on first start. The Node-RED image ships
 with the S7, MySQL and Dashboard 2.0 nodes preinstalled.
@@ -129,6 +131,8 @@ never actual values.
 
 **Node-RED:** the *testes sem CLP* group has two inject nodes that reproduce DB2 reads.
 They were used to validate the INSERT, the duplicate guard and the signal reset.
+The furnace registry was tested from the dashboard (create, edit, delete); a duplicate
+PLC id is rejected by a unique constraint.
 
 ## Known limitations
 
