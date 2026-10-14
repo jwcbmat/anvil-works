@@ -28,7 +28,7 @@
         "y": 259,
         "w": 932,
         "h": 282,
-        "info": "Reads DB2 every 500 ms and runs the handshake with the PLC.\r\n\r\nidle  (trigger=0, ready=0, done=0) -> trigger = 1\r\nready (ready=1, done=0)            -> INSERT, then done = 1\r\nreset (ready=0, done=1)            -> trigger = 0, done = 0\r\n\r\nflow.busy avoids inserting the same anvil twice.\r\nOn MySQL error, busy is released and the insert is retried.\r\nTimestamp comes from RD_SYS_T (UTC), read as DTLZ."
+        "info": "Reads DB2 every 500 ms and runs the handshake with the PLC.\r\n\r\nidle  (trigger=0, ready=0, done=0) -> trigger = 1\r\nready (ready=1, done=0)            -> INSERT, then done = 1\r\nreset (ready=0, done=1)            -> trigger = 0, done = 0\r\n\r\nflow.busy avoids inserting the same anvil twice.\r\nflow.inserted resends done on every poll until the PLC drops ready.\r\nOn MySQL error, busy is released and the insert is retried.\r\nTimestamp comes from RD_SYS_T (UTC), read as DTLZ."
     },
     {
         "id": "cee52596f5b2c2ef",
@@ -355,7 +355,7 @@
         "z": "f6f2187d.f17ca8",
         "g": "d5f817db75b74b5f",
         "name": "handshake",
-        "func": "const d = msg.payload;\nconst busy = flow.get('busy') || false;\n\nif (d.ready && !d.done && !busy) {\n    if (d.furnace < 1 || d.furnace > 3) {\n        node.warn('Invalid furnace: ' + d.furnace);\n        return [null, { payload: true }, null];\n    }\n    flow.set('busy', true);\n    const producedAt = new Date(d.timestamp).toISOString().slice(0, 23).replace('T', ' ');\n    return [null, null, {\n        topic: 'INSERT INTO products (furnace_plc_identifier, produced_at, hardness) VALUES (?, ?, ?)',\n        payload: [d.furnace, producedAt, d.hardness]\n    }];\n}\n\nif (!d.ready && d.done) {\n    flow.set('busy', false);\n    return [{ payload: false }, { payload: false }, null];\n}\n\nif (!d.trigger && !d.ready && !d.done) {\n    return [{ payload: true }, null, null];\n}\n\nreturn null;",
+        "func": "const d = msg.payload;\nconst busy = flow.get('busy') || false;\nconst inserted = flow.get('inserted') || false;\n\nif (d.ready && !d.done) {\n    if (inserted) {\n        return [null, { payload: true }, null];\n    }\n\n    if (busy) {\n        return null;\n    }\n\n    if (d.furnace < 1 || d.furnace > 3) {\n        node.warn('Invalid furnace: ' + d.furnace);\n        flow.set('inserted', true);\n        return [null, { payload: true }, null];\n    }\n\n    flow.set('busy', true);\n    const producedAt = new Date(d.timestamp).toISOString().slice(0, 23).replace('T', ' ');\n    \n    return [null, null, {\n        topic: 'INSERT INTO products (furnace_plc_identifier, produced_at, hardness) VALUES (?, ?, ?)',\n        payload: [d.furnace, producedAt, d.hardness]\n    }];\n}\n\nif (!d.ready && d.done) {\n    flow.set('busy', false);\n    flow.set('inserted', false);\n    return [{ payload: false }, { payload: false }, null];\n}\n\nif (!d.trigger && !d.ready && !d.done) {\n    return [{ payload: true }, null, null];\n}\n\nreturn null;",
         "outputs": 3,
         "timeout": 0,
         "noerr": 0,
@@ -426,6 +426,13 @@
                 "t": "set",
                 "p": "payload",
                 "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            },
+            {
+                "t": "set",
+                "p": "inserted",
+                "pt": "flow",
                 "to": "true",
                 "tot": "bool"
             }

@@ -109,9 +109,12 @@ be lost and the handshake would stall.
 **`done` only counts while `ready` is high.** A stray `done` never decrements the queue or
 moves the read index.
 
-**No duplicate inserts.** A flag (`flow.busy`) is set on INSERT and cleared only when the
-PLC drops `ready`. If the INSERT fails, the flag is released and the same anvil is retried
-on the next poll.
+**No duplicate inserts, no stalls.** `flow.busy` is set on INSERT and `flow.inserted` once
+the row is stored. While `ready` stays high, Node-RED rewrites `done` on every poll, so a
+write lost to a dropped connection does not stall the handshake. Both flags clear when the
+PLC drops `ready`. If the INSERT fails, `busy` is released and the same anvil is retried.
+The flags live in memory, so a Node-RED restart between the INSERT and `done` can store
+that anvil twice.
 
 **UTC end to end.** The PLC stamps anvils with `RD_SYS_T` (UTC), Node-RED reads the field
 as `DTLZ`, and MySQL stores it unchanged. Production and storage times share one time base.
@@ -130,7 +133,8 @@ never actual values.
 - Full trigger → ready → done → reset cycle, driven manually
 
 **Node-RED:** the *testes sem CLP* group has two inject nodes that reproduce DB2 reads.
-They were used to validate the INSERT, the duplicate guard and the signal reset.
+They were used to validate the INSERT, the duplicate guard, the `done` retry and the
+signal reset.
 The furnace registry was tested from the dashboard (create, edit, delete); a duplicate
 PLC id is rejected by a unique constraint.
 
