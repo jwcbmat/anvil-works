@@ -61,6 +61,7 @@ TIA Portal V20, CPU 1511-1 PN. The project is archived in `plc/Anvil_works.zap20
 | Block | Role |
 |---|---|
 | OB1 (LAD) | Furnace edge detection, anvil hand-off, queue removal |
+| AI 8xU/I/RTD/TC ST (slot 3) | Hardness sensor on `%IW2`, copied to `DB2.hardnessSensor` every cycle (unscaled, sensor range not specified) |
 | `FC_EnqueueAnvil` (SCL) | Writes to the circular queue, validates furnace id, handles full queue |
 | `DB_AnvilQueue` (DB1) | 10-slot queue with `readIndex`, `writeIndex` and `count` |
 | `DB_AnvilProcess` (DB2) | Area read and written by Node-RED |
