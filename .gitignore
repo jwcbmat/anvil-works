@@ -1,1 +1,9 @@
 .env
+node-red/.config.*.json
+node-red/*.backup
+node-red/.*.backup
+node-red/node_modules/
+node-red/lib/
+node-red/context/
+node-red/package.json
+node-red/package-lock.json

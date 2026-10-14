@@ -20,15 +20,19 @@ services:
     restart: unless-stopped
 
   node-red:
-    image: nodered/node-red
+    build: ./node-red
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      PLC_HOST: ${PLC_HOST}
     ports:
       - "1880:1880"
     depends_on:
       mysql:
         condition: service_healthy
     volumes:
-      - node_red_data:/data
+      - ./node-red:/data
 
 volumes:
   mysql_data:
-  node_red_data:
