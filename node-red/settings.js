@@ -1,4 +1,5 @@
 module.exports = {
-    flowFile: 'flows.json',
-    credentialSecret: false
+  flowFile: 'flows.json',
+  flowFilePretty: true,
+  credentialSecret: false
 };
